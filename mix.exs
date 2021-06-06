@@ -22,6 +22,7 @@ defmodule Excontainers.MixProject do
   defp deps do
     [
       {:httpoison, "~> 1.8"},
+      {:jason, "~> 1.2"},
       {:typed_struct, "~> 0.2"}
     ] ++ dev_deps()
   end

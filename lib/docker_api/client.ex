@@ -1,23 +1,32 @@
 defmodule Excontainers.DockerApi.Client do
+  use TypedStruct
   require Logger
   alias Excontainers.DockerApi.Context
 
+  typedstruct module: Response, enforce: true do
+    field :status, pos_integer()
+    field :body, term()
+  end
+
+  @spec get(String.t(), Keyword.t()) :: __MODULE__.Response.t()
   def get(path, options \\ []) do
     request(:get, path, options)
   end
 
   defp request(method, path, options) do
     context = Keyword.get(options, :context, Context.from_env())
-    Logger.info("Sending #{method} request to #{base_url(context) <> path}")
+    url = base_url(context) <> path
+
+    Logger.info("Sending request", method: method, url: url, context: context)
 
     response =
       HTTPoison.request(
         method,
-        base_url(context) <> path
+        url
       )
 
     with {:ok, %HTTPoison.Response{status_code: status, body: body, headers: _headers}} = response do
-      %{status: status, body: body}
+      %__MODULE__.Response{status: status, body: body}
     end
   end
 

@@ -1,4 +1,6 @@
 defmodule Excontainers.DockerApi.Client do
+  @moduledoc false
+
   use TypedStruct
   require Logger
   alias Excontainers.DockerApi.Context
@@ -19,13 +21,9 @@ defmodule Excontainers.DockerApi.Client do
 
     Logger.info("Sending request", method: method, url: url, context: context)
 
-    response =
-      HTTPoison.request(
-        method,
-        url
-      )
+    response = HTTPoison.request(method, url)
 
-    with {:ok, %HTTPoison.Response{status_code: status, body: body, headers: _headers}} = response do
+    with {:ok, %HTTPoison.Response{status_code: status, body: body, headers: _}} <- response do
       %__MODULE__.Response{status: status, body: body}
     end
   end

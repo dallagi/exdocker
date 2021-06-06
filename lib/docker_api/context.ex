@@ -3,12 +3,13 @@ defmodule Excontainers.DockerApi.Context do
 
   @default_docker_host "unix:///var/run/docker.sock"
 
-  typedstruct do
-    field :host, String.t(), enforce: true
+  typedstruct enforce: true do
+    field :host, String.t()
+    field :api_version, String.t()
   end
 
   def from_env do
-    %__MODULE__{host: docker_host_from_env()}
+    %__MODULE__{host: docker_host_from_env(), api_version: "v1.41"}
   end
 
   defp docker_host_from_env do

@@ -26,7 +26,7 @@ defmodule Excontainers.DockerApi.ContainersTest do
 
   describe "start" do
     test "starts an existing container" do
-      container_id = DockerTestUtils.create_container!(@alpine)
+      container_id = DockerTestUtils.create_container!(@alpine, ["sleep", "10"])
 
       assert :ok = Containers.start(container_id)
       assert "running" == DockerTestUtils.container_status(container_id)

@@ -2,8 +2,11 @@ defmodule Excontainers.Support.DockerTestUtils do
   @moduledoc false
   import ExUnit.Callbacks
 
-  def create_container!(image) do
-    container_id = run_command!(["create", image])
+  def create_container!(image, cmd \\ []) do
+    container_id =
+      run_command!(["create", image] ++ cmd)
+      |> String.trim()
+
     on_exit(fn -> remove_container!(container_id) end)
     container_id
   end

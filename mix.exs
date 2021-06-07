@@ -6,6 +6,7 @@ defmodule Excontainers.MixProject do
       app: :excontainers,
       version: "0.1.0",
       elixir: "~> 1.12",
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -33,4 +34,7 @@ defmodule Excontainers.MixProject do
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false}
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 end

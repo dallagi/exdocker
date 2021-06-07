@@ -1,9 +1,18 @@
 defmodule Excontainers.Support.DockerTestUtils do
   @moduledoc false
+  import ExUnit.Callbacks
+
+  def create_container!(image) do
+    container_id = run_command!(["create", image])
+    on_exit(fn -> remove_container!(container_id) end)
+    container_id
+  end
 
   def inspect!(id_or_name), do: run_command!(["inspect", id_or_name]) |> Jason.decode!()
   def pull_image!(name), do: run_command!(["pull", name])
   def remove_container!(id_or_name), do: run_command!(["rm", "-f", id_or_name])
+
+  def container_status(id_or_name), do: get_in(inspect!(id_or_name), [Access.at(0), "State", "Status"])
 
   defp run_command!(command) do
     case System.cmd("docker", command) do

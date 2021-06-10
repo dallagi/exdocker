@@ -36,7 +36,7 @@ defmodule Excontainers.DockerApi.Client do
     response = HTTPoison.request(method, url, body, headers, params: query_params)
 
     with {:ok, %HTTPoison.Response{status_code: status, body: body, headers: headers}} <- response,
-         {:ok, parsed_body} <- parse_body(body, Enum.into(headers, %{})["Content-Type"]) do
+         {:ok, parsed_body} <- parse_body(body, headers) do
       {:ok, %__MODULE__.Response{status: status, body: parsed_body}}
     end
   end
@@ -51,6 +51,10 @@ defmodule Excontainers.DockerApi.Client do
     "#{hackney_host}/#{context.api_version}"
   end
 
-  defp parse_body(body, "application/json"), do: Jason.decode(body)
-  defp parse_body(body, _), do: {:ok, body}
+  defp parse_body(body, headers) do
+    case Enum.into(headers, %{}) do
+      %{"Content-Type" => "application/json"} -> Jason.decode(body)
+      _ -> {:ok, body}
+    end
+  end
 end

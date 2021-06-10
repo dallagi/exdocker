@@ -32,4 +32,12 @@ defmodule Excontainers.DockerApi.ContainersTest do
       assert "running" == DockerTestUtils.container_status(container_id)
     end
   end
+
+  describe "wait" do
+    test "waits until a container stops, then returns its exit code" do
+      container_id = DockerTestUtils.run_container!(@alpine, ["sh", "-c", "sleep 0.5 && exit 123"])
+
+      assert {:ok, 123} == Containers.wait(container_id)
+    end
+  end
 end

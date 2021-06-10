@@ -11,6 +11,15 @@ defmodule Excontainers.Support.DockerTestUtils do
     container_id
   end
 
+  def run_container!(image, cmd \\ []) do
+    container_id =
+      run_command!(["run", "-d", image] ++ cmd)
+      |> String.trim()
+
+    on_exit(fn -> remove_container!(container_id) end)
+    container_id
+  end
+
   def inspect!(id_or_name), do: run_command!(["inspect", id_or_name]) |> Jason.decode!()
   def pull_image!(name), do: run_command!(["pull", name])
   def remove_container!(id_or_name), do: run_command!(["rm", "-f", id_or_name])

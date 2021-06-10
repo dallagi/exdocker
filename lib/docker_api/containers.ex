@@ -2,15 +2,13 @@ defmodule Excontainers.DockerApi.Containers do
   @moduledoc false
 
   alias Excontainers.DockerApi.Client
+  alias Excontainers.Utils.{ExtraEnum, ExtraKeyword}
 
   @spec create(String.t(), Keyword.t()) :: {:ok, String.t() | {:error, any()}}
   def create(image, options \\ []) do
-    name = Keyword.get(options, :name)
+    client_options = ExtraKeyword.take_values(options, [:context])
+    [name, command, host_config] = ExtraKeyword.take_values(options, [:name, :command, :host_config])
     extra_params = Keyword.get(options, :extra_params, %{})
-    client_options = Keyword.take(options, [:context])
-
-    command = Keyword.get(options, :command)
-    host_config = Keyword.get(options, :host_config)
 
     body = create_body(image, command, host_config, extra_params)
 
@@ -23,10 +21,22 @@ defmodule Excontainers.DockerApi.Containers do
 
   @spec start(String.t(), Keyword.t()) :: :ok | {:error, any()}
   def start(container_id, options \\ []) do
-    client_options = Keyword.take(options, [:context])
+    client_options = ExtraKeyword.take_values(options, [:context])
 
     case Client.post("/containers/#{container_id}/start", "", %{}, client_options) do
       {:ok, %{status: 204}} -> :ok
+      {:ok, %{status: status}} -> {:error, "Request failed with status #{status}"}
+      {:error, error} -> {:error, error}
+    end
+  end
+
+  @spec wait(String.t(), Keyword.t()) :: {:ok, non_neg_integer()} | {:error, any()}
+  def wait(container_id, options \\ []) do
+    condition = Keyword.get(options, :condition, "not-running")
+    client_options = ExtraKeyword.take_values(options, [:context])
+
+    case Client.post("/containers/#{container_id}/wait", "", %{condition: condition}, client_options) do
+      {:ok, %{status: 200, body: %{"StatusCode" => exit_code}}} -> {:ok, exit_code}
       {:ok, %{status: status}} -> {:error, "Request failed with status #{status}"}
       {:error, error} -> {:error, error}
     end
@@ -39,12 +49,6 @@ defmodule Excontainers.DockerApi.Containers do
       "HostConfig" => host_config
     }
     |> Map.merge(extra_params)
-    |> remove_nils()
-  end
-
-  defp remove_nils(enum) do
-    enum
-    |> Enum.filter(fn {_, v} -> v != nil end)
-    |> Enum.into(%{})
+    |> ExtraEnum.remove_nils()
   end
 end

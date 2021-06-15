@@ -30,27 +30,6 @@ defmodule Excontainers.DockerApi.Client do
   @spec get_stream(String.t(), map(), pid(), Keyword.t()) :: async_response()
   def get_stream(path, query_params, stream_to, options \\ []) do
     async_request(:get, path, query_params, "", stream_to, options)
-    # parent = self()
-    # listener_pid = spawn_link(fn -> stream_listener(parent, stream_to) end)
-
-    # context = Keyword.get(options, :context, Context.from_env())
-    # url = base_url(context) <> path
-
-    # result =
-    #   HTTPoison.get(
-    #     url,
-    #     query_params,
-    #     params: %{follow: true, stdout: true},
-    #     stream_to: listener_pid
-    #   )
-
-    # with {:ok, %HTTPoison.AsyncResponse{id: ref}} <- result do
-    #   receive do
-    #     {:status, ^ref, status_code} -> {:ok, %AsyncResponse{status: status_code, stream_ref: ref}}
-    #   after
-    #     @timeout -> {:error, :timeout_waiting_status}
-    #   end
-    # end
   end
 
   @spec post(String.t(), request_body(), query_params(), Keyword.t()) :: response()

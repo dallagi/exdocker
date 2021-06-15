@@ -42,6 +42,30 @@ defmodule Excontainers.DockerApi.Containers do
     end
   end
 
+  @spec logs(String.t(), Keyword.t()) :: {:ok, reference()} | {:error, any()}
+  def logs(container_id, options \\ []) do
+    stream_to = Keyword.get(options, :stream_to, self())
+    stdout = Keyword.get(options, :stdout, true)
+    stderr = Keyword.get(options, :stderr, false)
+
+    query_params = %{follow: true, stdout: stdout, stderr: stderr}
+    logs_listener = spawn_link(fn -> parse_and_forward_logs(stream_to) end)
+    response = Client.get_stream("/containers/#{container_id}/logs", query_params, logs_listener)
+
+    case response do
+      {:ok, %{status: 200, stream_ref: stream_ref}} ->
+        {:ok, stream_ref}
+
+      {:ok, %{status: status}} ->
+        Process.exit(logs_listener, :request_failed)
+        {:error, "Request failed with status #{status}"}
+
+      {:error, error} ->
+        Process.exit(logs_listener, :request_failed)
+        {:error, error}
+    end
+  end
+
   defp create_body(image, command, host_config, extra_params) do
     %{
       "Cmd" => command,
@@ -50,5 +74,34 @@ defmodule Excontainers.DockerApi.Containers do
     }
     |> Map.merge(extra_params)
     |> ExtraEnum.remove_nils()
+  end
+
+  defp parse_and_forward_logs(forward_to) do
+    receive do
+      {:chunk, ref, chunk} ->
+        for {stream, text} <- parse_log_chunk(chunk) do
+          send(forward_to, {:log_chunk, ref, stream, text})
+        end
+
+        parse_and_forward_logs(forward_to)
+
+      {:end, ref} ->
+        send(forward_to, {:log_end, ref})
+    end
+  end
+
+  defp parse_log_chunk(<<>>), do: []
+
+  defp parse_log_chunk(chunk) do
+    <<stream_id, 0, 0, 0, size::32, text::binary-size(size), rest::binary>> = chunk
+
+    stream =
+      case stream_id do
+        0 -> :stdin
+        1 -> :stdout
+        2 -> :stderr
+      end
+
+    [{stream, text} | parse_log_chunk(rest)]
   end
 end

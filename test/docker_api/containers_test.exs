@@ -40,4 +40,35 @@ defmodule Excontainers.DockerApi.ContainersTest do
       assert {:ok, 123} == Containers.wait(container_id)
     end
   end
+
+  describe "stream_logs" do
+    test "streams logs as messages tagged with the stream type" do
+      container_id =
+        DockerTestUtils.run_container!(@alpine, [
+          "sh",
+          "-c",
+          ~s(echo "hello stdout!" && echo "hello stderr!" >&2 && echo "hello stdout again!")
+        ])
+
+      assert {:ok, ref} = Containers.stream_logs(container_id, stdout: true, stderr: true)
+      assert_receive({:log_chunk, ^ref, :stdout, "hello stdout!\n"})
+      assert_receive({:log_chunk, ^ref, :stderr, "hello stderr!\n"})
+      assert_receive({:log_chunk, ^ref, :stdout, "hello stdout again!\n"})
+      assert_receive({:log_end, ^ref})
+    end
+
+    test "can filter streams" do
+      container_id =
+        DockerTestUtils.run_container!(@alpine, [
+          "sh",
+          "-c",
+          ~s(echo "hello stdout!" && echo "hello stderr!" >&2)
+        ])
+
+      assert {:ok, ref} = Containers.stream_logs(container_id, stdout: true)
+      assert_receive({:log_chunk, ^ref, :stdout, "hello stdout!\n"})
+      refute_receive({:log_chunk, _, :stderr, _})
+      assert_receive({:log_end, ^ref})
+    end
+  end
 end

@@ -42,7 +42,7 @@ defmodule Excontainers.DockerApi.Containers do
     end
   end
 
-  @spec logs(String.t(), Keyword.t()) :: {:ok, reference()} | {:error, any()}
+  @spec stream_logs(String.t(), Keyword.t()) :: {:ok, reference()} | {:error, any()}
   def logs(container_id, options \\ []) do
     stream_to = Keyword.get(options, :stream_to, self())
     stdout = Keyword.get(options, :stdout, true)

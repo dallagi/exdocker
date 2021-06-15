@@ -71,4 +71,18 @@ defmodule Excontainers.DockerApi.ContainersTest do
       assert_receive({:log_end, ^ref})
     end
   end
+
+  describe "logs" do
+    test "returns container logs" do
+      container_id =
+        DockerTestUtils.run_container!(@alpine, [
+          "sh",
+          "-c",
+          ~s(echo "hello stdout!" && echo "hello stderr!" >&2 && echo "hello stdout again!")
+        ])
+
+      assert {:ok, %{stdout: "hello stdout!\nhello stdout again!\n", stderr: "hello stderr!\n"}} =
+               Containers.logs(container_id, stdout: true, stderr: true)
+    end
+  end
 end

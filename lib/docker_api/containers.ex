@@ -43,14 +43,15 @@ defmodule Excontainers.DockerApi.Containers do
   end
 
   @spec stream_logs(String.t(), Keyword.t()) :: {:ok, reference()} | {:error, any()}
-  def logs(container_id, options \\ []) do
+  def stream_logs(container_id, options \\ []) do
     stream_to = Keyword.get(options, :stream_to, self())
     stdout = Keyword.get(options, :stdout, true)
     stderr = Keyword.get(options, :stderr, false)
+    client_options = ExtraKeyword.take_values(options, [:context])
 
     query_params = %{follow: true, stdout: stdout, stderr: stderr}
     logs_listener = spawn_link(fn -> parse_and_forward_logs(stream_to) end)
-    response = Client.get_stream("/containers/#{container_id}/logs", query_params, logs_listener)
+    response = Client.get_stream("/containers/#{container_id}/logs", query_params, logs_listener, client_options)
 
     case response do
       {:ok, %{status: 200, stream_ref: stream_ref}} ->
@@ -63,6 +64,21 @@ defmodule Excontainers.DockerApi.Containers do
       {:error, error} ->
         Process.exit(logs_listener, :request_failed)
         {:error, error}
+    end
+  end
+
+  @spec logs(String.t(), Keyword.t()) :: {:ok, String.t()} | {:error, any()}
+  def logs(container_id, options \\ []) do
+    client_options = ExtraKeyword.take_values(options, [:context])
+    stdout = Keyword.get(options, :stdout, true)
+    stderr = Keyword.get(options, :stderr, false)
+
+    query_params = %{follow: false, stdout: stdout, stderr: stderr}
+
+    case Client.get("/containers/#{container_id}/logs", query_params, client_options) do
+      {:ok, %{status: 200, body: raw_logs}} -> {:ok, parse_logs(raw_logs)}
+      {:ok, %{status: status}} -> {:error, "Request failed with status #{status}"}
+      {:error, error} -> {:error, error}
     end
   end
 
@@ -88,6 +104,14 @@ defmodule Excontainers.DockerApi.Containers do
       {:end, ref} ->
         send(forward_to, {:log_end, ref})
     end
+  end
+
+  defp parse_logs(chunk) do
+    chunk
+    |> parse_log_chunk
+    |> Enum.group_by(fn {stream, _text} -> stream end, fn {_stream, text} -> text end)
+    |> Enum.map(fn {stream, text_list} -> {stream, Enum.join(text_list)} end)
+    |> Enum.into(%{})
   end
 
   defp parse_log_chunk(<<>>), do: []

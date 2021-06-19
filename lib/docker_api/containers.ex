@@ -1,7 +1,8 @@
 defmodule Exdocker.Containers do
   @moduledoc false
 
-  alias Exdocker.{Client, Logs}
+  alias Exdocker.Client
+  alias Exdocker.Utils.Logs
   alias Exdocker.Utils.{ExtraEnum, ExtraKeyword}
 
   @spec create(String.t(), Keyword.t()) :: {:ok, String.t() | {:error, any()}}

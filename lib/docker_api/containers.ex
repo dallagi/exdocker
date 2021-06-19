@@ -2,9 +2,8 @@ defmodule Excontainers.DockerApi.Containers do
   @moduledoc false
 
   @type std_stream :: :stdout | :stderr | :stdin
-  @std_streams_by_id %{0 => :stdin, 1 => :stdout, 2 => :stderr}
 
-  alias Excontainers.DockerApi.Client
+  alias Excontainers.DockerApi.{Client, Logs}
   alias Excontainers.Utils.{ExtraEnum, ExtraKeyword}
 
   @spec create(String.t(), Keyword.t()) :: {:ok, String.t() | {:error, any()}}
@@ -53,7 +52,7 @@ defmodule Excontainers.DockerApi.Containers do
     client_options = ExtraKeyword.take_values(options, [:context])
 
     query_params = %{follow: true, stdout: stdout, stderr: stderr}
-    logs_listener = spawn_link(fn -> parse_and_forward_logs(stream_to) end)
+    logs_listener = spawn_link(fn -> Logs.parse_and_forward(stream_to) end)
     response = Client.get_stream("/containers/#{container_id}/logs", query_params, logs_listener, client_options)
 
     case response do
@@ -79,7 +78,7 @@ defmodule Excontainers.DockerApi.Containers do
     query_params = %{follow: false, stdout: stdout, stderr: stderr}
 
     case Client.get("/containers/#{container_id}/logs", query_params, client_options) do
-      {:ok, %{status: 200, body: raw_logs}} -> {:ok, parse_log_chunk(raw_logs)}
+      {:ok, %{status: 200, body: raw_logs}} -> {:ok, Logs.parse_chunk(raw_logs)}
       {:ok, %{status: status}} -> {:error, "Request failed with status #{status}"}
       {:error, error} -> {:error, error}
     end
@@ -93,28 +92,5 @@ defmodule Excontainers.DockerApi.Containers do
     }
     |> Map.merge(extra_params)
     |> ExtraEnum.remove_nils()
-  end
-
-  defp parse_and_forward_logs(forward_to) do
-    receive do
-      {:chunk, ref, chunk} ->
-        for {stream, text} <- parse_log_chunk(chunk) do
-          send(forward_to, {:log_chunk, ref, stream, text})
-        end
-
-        parse_and_forward_logs(forward_to)
-
-      {:end, ref} ->
-        send(forward_to, {:log_end, ref})
-    end
-  end
-
-  defp parse_log_chunk(<<>>), do: []
-
-  defp parse_log_chunk(chunk) do
-    <<stream_id, 0, 0, 0, size::32, text::binary-size(size), rest::binary>> = chunk
-    stream = Map.fetch!(@std_streams_by_id, stream_id)
-
-    [{stream, text} | parse_log_chunk(rest)]
   end
 end

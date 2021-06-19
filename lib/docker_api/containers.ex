@@ -1,6 +1,9 @@
 defmodule Excontainers.DockerApi.Containers do
   @moduledoc false
 
+  @type std_stream :: :stdout | :stderr | :stdin
+  @std_streams_by_id %{0 => :stdin, 1 => :stdout, 2 => :stderr}
+
   alias Excontainers.DockerApi.Client
   alias Excontainers.Utils.{ExtraEnum, ExtraKeyword}
 
@@ -67,7 +70,7 @@ defmodule Excontainers.DockerApi.Containers do
     end
   end
 
-  @spec logs(String.t(), Keyword.t()) :: {:ok, String.t()} | {:error, any()}
+  @spec logs(String.t(), Keyword.t()) :: {:ok, [{std_stream(), String.t()}]} | {:error, any()}
   def logs(container_id, options \\ []) do
     client_options = ExtraKeyword.take_values(options, [:context])
     stdout = Keyword.get(options, :stdout, true)
@@ -76,7 +79,7 @@ defmodule Excontainers.DockerApi.Containers do
     query_params = %{follow: false, stdout: stdout, stderr: stderr}
 
     case Client.get("/containers/#{container_id}/logs", query_params, client_options) do
-      {:ok, %{status: 200, body: raw_logs}} -> {:ok, parse_logs(raw_logs)}
+      {:ok, %{status: 200, body: raw_logs}} -> {:ok, parse_log_chunk(raw_logs)}
       {:ok, %{status: status}} -> {:error, "Request failed with status #{status}"}
       {:error, error} -> {:error, error}
     end
@@ -106,25 +109,11 @@ defmodule Excontainers.DockerApi.Containers do
     end
   end
 
-  defp parse_logs(chunk) do
-    chunk
-    |> parse_log_chunk
-    |> Enum.group_by(fn {stream, _text} -> stream end, fn {_stream, text} -> text end)
-    |> Enum.map(fn {stream, text_list} -> {stream, Enum.join(text_list)} end)
-    |> Enum.into(%{})
-  end
-
   defp parse_log_chunk(<<>>), do: []
 
   defp parse_log_chunk(chunk) do
     <<stream_id, 0, 0, 0, size::32, text::binary-size(size), rest::binary>> = chunk
-
-    stream =
-      case stream_id do
-        0 -> :stdin
-        1 -> :stdout
-        2 -> :stderr
-      end
+    stream = Map.fetch!(@std_streams_by_id, stream_id)
 
     [{stream, text} | parse_log_chunk(rest)]
   end

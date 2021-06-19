@@ -78,10 +78,12 @@ defmodule Excontainers.DockerApi.ContainersTest do
         DockerTestUtils.run_container!(@alpine, [
           "sh",
           "-c",
-          ~s(echo "hello stdout!" && echo "hello stderr!" >&2 && echo "hello stdout again!")
+          ~s(echo "stdout!" && sleep "0.1" && echo "stderr!" >&2 && sleep "0.1" && echo "stdout again!")
         ])
 
-      assert {:ok, %{stdout: "hello stdout!\nhello stdout again!\n", stderr: "hello stderr!\n"}} =
+      Containers.wait(container_id)
+
+      assert {:ok, [{:stdout, "stdout!\n"}, {:stderr, "stderr!\n"}, {:stdout, "stdout again!\n"}]} =
                Containers.logs(container_id, stdout: true, stderr: true)
     end
   end

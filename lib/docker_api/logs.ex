@@ -1,4 +1,4 @@
-defmodule Excontainers.DockerApi.Logs do
+defmodule Exdocker.Logs do
   @std_streams_by_id %{0 => :stdin, 1 => :stdout, 2 => :stderr}
   @type std_stream :: :stdout | :stderr | :stdin
   @type log_chunk :: {std_stream(), String.t()}

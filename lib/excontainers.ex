@@ -1,5 +1,5 @@
-defmodule Excontainers do
+defmodule Exdocker do
   @moduledoc """
-  Documentation for `Excontainers`.
+  Documentation for `Exdocker`.
   """
 end

@@ -1,4 +1,4 @@
-defmodule Excontainers.DockerApi.Context do
+defmodule Exdocker.Context do
   @moduledoc false
   use TypedStruct
 

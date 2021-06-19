@@ -1,23 +1,23 @@
-# Excontainers
+# Exdocker
 
 **TODO: Add description**
 
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `excontainers` to your list of dependencies in `mix.exs`:
+by adding `exdocker` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:excontainers, "~> 0.1.0"}
+    {:exdocker, "~> 0.1.0"}
   ]
 end
 ```
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/excontainers](https://hexdocs.pm/excontainers).
+be found at [https://hexdocs.pm/exdocker](https://hexdocs.pm/exdocker).
 
 TODO
 

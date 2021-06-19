@@ -1,4 +1,4 @@
-defmodule Excontainers.Support.DockerTestUtils do
+defmodule Exdocker.Support.DockerTestUtils do
   @moduledoc false
   import ExUnit.Callbacks
 

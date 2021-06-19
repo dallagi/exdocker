@@ -1,7 +1,7 @@
-defmodule Excontainers.DockerApi.ClientTest do
+defmodule Exdocker.ClientTest do
   use ExUnit.Case, async: true
 
-  alias Excontainers.DockerApi.Client
+  alias Exdocker.Client
 
   test "successfully integrates with docker daemon" do
     assert {:ok, %{status: 200, body: "OK"}} = Client.get("/_ping", %{})

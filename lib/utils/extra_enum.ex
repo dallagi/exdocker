@@ -1,4 +1,4 @@
-defmodule Excontainers.Utils.ExtraEnum do
+defmodule Exdocker.Utils.ExtraEnum do
   @moduledoc false
 
   @spec remove_nils(Enum.t()) :: map()

@@ -1,3 +1,3 @@
-defmodule ExcontainersTest do
+defmodule ExdockerTest do
   use ExUnit.Case, async: true
 end

@@ -1,4 +1,4 @@
-defmodule Excontainers.Support.TestUtils do
+defmodule Exdocker.Support.TestUtils do
   def random_string(length \\ 16) do
     :crypto.strong_rand_bytes(length)
     |> Base.encode32()

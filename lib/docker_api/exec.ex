@@ -1,6 +1,6 @@
-defmodule Excontainers.DockerApi.Exec do
-  alias Excontainers.DockerApi.{Client, Logs}
-  alias Excontainers.Utils.{ExtraEnum, ExtraKeyword}
+defmodule Exdocker.Exec do
+  alias Exdocker.{Client, Logs}
+  alias Exdocker.Utils.{ExtraEnum, ExtraKeyword}
 
   @type result(result_type) :: {:ok, result_type} | {:error, any()}
 

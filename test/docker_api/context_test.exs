@@ -1,7 +1,7 @@
-defmodule Excontainers.DockerApi.ContextTest do
+defmodule Exdocker.ContextTest do
   use ExUnit.Case, async: false
 
-  alias Excontainers.DockerApi.Context
+  alias Exdocker.Context
 
   setup do
     previous_env = System.get_env()

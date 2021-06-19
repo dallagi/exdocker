@@ -1,9 +1,9 @@
-defmodule Excontainers.DockerApi.Client do
+defmodule Exdocker.Client do
   @moduledoc false
 
   use TypedStruct
   require Logger
-  alias Excontainers.DockerApi.Context
+  alias Exdocker.Context
 
   @type query_params :: map()
   @type request_body :: String.t() | map()

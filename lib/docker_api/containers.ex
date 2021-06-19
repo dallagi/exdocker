@@ -1,8 +1,8 @@
-defmodule Excontainers.DockerApi.Containers do
+defmodule Exdocker.Containers do
   @moduledoc false
 
-  alias Excontainers.DockerApi.{Client, Logs}
-  alias Excontainers.Utils.{ExtraEnum, ExtraKeyword}
+  alias Exdocker.{Client, Logs}
+  alias Exdocker.Utils.{ExtraEnum, ExtraKeyword}
 
   @spec create(String.t(), Keyword.t()) :: {:ok, String.t() | {:error, any()}}
   def create(image, options \\ []) do

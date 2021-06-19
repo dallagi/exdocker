@@ -1,8 +1,8 @@
-defmodule DockerApi.ExecTest do
+defmodule ExecTest do
   use ExUnit.Case, async: true
 
-  alias Excontainers.Support.DockerTestUtils
-  alias Excontainers.DockerApi.Exec
+  alias Exdocker.Support.DockerTestUtils
+  alias Exdocker.Exec
 
   @alpine "alpine:3.13.5"
 

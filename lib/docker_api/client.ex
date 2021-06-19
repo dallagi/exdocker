@@ -37,6 +37,11 @@ defmodule Excontainers.DockerApi.Client do
     request(:post, path, query_params, body, options)
   end
 
+  @spec post_stream(String.t(), map(), pid(), Keyword.t()) :: async_response()
+  def post_stream(path, body, query_params, stream_to, options \\ []) do
+    async_request(:post, path, query_params, body, stream_to, options)
+  end
+
   defp request(method, path, query_params, body, options) do
     context = Keyword.get(options, :context, Context.from_env())
     url = base_url(context) <> path

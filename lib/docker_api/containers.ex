@@ -1,8 +1,6 @@
 defmodule Excontainers.DockerApi.Containers do
   @moduledoc false
 
-  @type std_stream :: :stdout | :stderr | :stdin
-
   alias Excontainers.DockerApi.{Client, Logs}
   alias Excontainers.Utils.{ExtraEnum, ExtraKeyword}
 
@@ -52,10 +50,10 @@ defmodule Excontainers.DockerApi.Containers do
     client_options = ExtraKeyword.take_values(options, [:context])
 
     query_params = %{follow: true, stdout: stdout, stderr: stderr}
-    logs_listener = spawn_link(fn -> Logs.parse_and_forward(stream_to) end)
-    response = Client.get_stream("/containers/#{container_id}/logs", query_params, logs_listener, client_options)
 
-    case response do
+    logs_listener = spawn_link(fn -> Logs.parse_and_forward(stream_to) end)
+
+    case Client.get_stream("/containers/#{container_id}/logs", query_params, logs_listener, client_options) do
       {:ok, %{status: 200, stream_ref: stream_ref}} ->
         {:ok, stream_ref}
 
@@ -69,7 +67,7 @@ defmodule Excontainers.DockerApi.Containers do
     end
   end
 
-  @spec logs(String.t(), Keyword.t()) :: {:ok, [{std_stream(), String.t()}]} | {:error, any()}
+  @spec logs(String.t(), Keyword.t()) :: {:ok, [Logs.log_chunk()]} | {:error, any()}
   def logs(container_id, options \\ []) do
     client_options = ExtraKeyword.take_values(options, [:context])
     stdout = Keyword.get(options, :stdout, true)

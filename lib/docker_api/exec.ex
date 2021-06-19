@@ -35,13 +35,35 @@ defmodule Excontainers.DockerApi.Exec do
 
   @spec start(String.t(), Keyword.t()) :: result([{Logs.std_stream(), String.t()}])
   def start(exec_id, options \\ []) do
-    body = %{Detach: Keyword.get(options, :detach, false)}
     client_options = ExtraKeyword.take_values(options, [:context, :timeout])
+    body = %{Detach: Keyword.get(options, :detach, false)}
 
     case Client.post("/exec/#{exec_id}/start", body, %{}, client_options) do
       {:ok, %{status: 200, body: body}} -> {:ok, Logs.parse_chunk(body)}
       {:ok, %{status: status}} -> {:error, "Request failed with status #{status}"}
       {:error, error} -> {:error, error}
+    end
+  end
+
+  @spec start_and_stream_logs(String.t(), Keyword.t()) :: result(reference())
+  def start_and_stream_logs(exec_id, options \\ []) do
+    stream_to = Keyword.get(options, :stream_to, self())
+    client_options = ExtraKeyword.take_values(options, [:context, :timeout])
+    body = %{Detach: false}
+
+    logs_listener = spawn_link(fn -> Logs.parse_and_forward(stream_to) end)
+
+    case Client.post_stream("/exec/#{exec_id}/start", body, %{}, logs_listener, client_options) do
+      {:ok, %{status: 200, stream_ref: stream_ref}} ->
+        {:ok, stream_ref}
+
+      {:ok, %{status: status}} ->
+        Process.exit(logs_listener, :request_failed)
+        {:error, "Request failed with status #{status}"}
+
+      {:error, error} ->
+        Process.exit(logs_listener, :request_failed)
+        {:error, error}
     end
   end
 

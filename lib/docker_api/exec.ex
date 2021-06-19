@@ -15,9 +15,9 @@ defmodule Excontainers.DockerApi.Exec do
 
     body =
       ExtraEnum.remove_nils(%{
-        AttachStdin: Keyword.get(options, :attach_stdin, false),
-        AttachStdout: Keyword.get(options, :attach_stdout, true),
-        AttachStderr: Keyword.get(options, :attach_stderr, true),
+        AttachStdin: Keyword.get(options, :stdin, false),
+        AttachStdout: Keyword.get(options, :stdout, true),
+        AttachStderr: Keyword.get(options, :stderr, true),
         Privileged: Keyword.get(options, :privileged, false),
         User: Keyword.get(options, :user),
         WorkingDir: Keyword.get(options, :working_dir),

@@ -1,6 +1,9 @@
 defmodule Excontainers.DockerApi.Logs do
   @std_streams_by_id %{0 => :stdin, 1 => :stdout, 2 => :stderr}
+  @type std_stream :: :stdout | :stderr | :stdin
+  @type log_chunk :: {std_stream(), String.t()}
 
+  @spec parse_and_forward(pid()) :: :ok
   def parse_and_forward(forward_to) do
     receive do
       {:chunk, ref, chunk} ->
@@ -12,9 +15,11 @@ defmodule Excontainers.DockerApi.Logs do
 
       {:end, ref} ->
         send(forward_to, {:log_end, ref})
+        :ok
     end
   end
 
+  @spec parse_chunk(binary()) :: [log_chunk()]
   def parse_chunk(<<>>), do: []
 
   def parse_chunk(chunk) do

@@ -48,7 +48,7 @@ defmodule Exdocker.Client do
     headers = if is_map(body), do: %{"Content-Type" => "application/json"}, else: %{}
     body = if is_map(body), do: Jason.encode!(body), else: body
 
-    Logger.info("Sending request", method: method, url: url, context: context)
+    Logger.debug("Sending request", method: method, url: url, context: context)
 
     response = HTTPoison.request(method, url, body, headers, params: query_params)
 
@@ -64,7 +64,7 @@ defmodule Exdocker.Client do
     headers = if is_map(body), do: %{"Content-Type" => "application/json"}, else: %{}
     body = if is_map(body), do: Jason.encode!(body), else: body
 
-    Logger.info("Sending async request", method: method, url: url, context: context)
+    Logger.debug("Sending async request", method: method, url: url, context: context)
 
     parent = self()
     listener_pid = spawn_link(fn -> stream_listener(parent, stream_to) end)

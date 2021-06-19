@@ -1,11 +1,6 @@
 import Config
 
 config :logger, :console,
+  level: :warning,
   format: "[$level] $message $metadata\n",
   metadata: :all
-
-try do
-  import_config "#{config_env()}.exs"
-catch
-  _, _ -> nil
-end

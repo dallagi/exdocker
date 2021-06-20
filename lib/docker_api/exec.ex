@@ -1,4 +1,6 @@
 defmodule Exdocker.Exec do
+  @moduledoc false
+
   alias Exdocker.Client
   alias Exdocker.Utils.Logs
   alias Exdocker.Utils.{ExtraEnum, ExtraKeyword}

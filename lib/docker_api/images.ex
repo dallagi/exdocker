@@ -1,4 +1,6 @@
 defmodule Exdocker.Images do
+  @moduledoc false
+
   alias Exdocker.Client
   alias Exdocker.Utils.ExtraKeyword
 

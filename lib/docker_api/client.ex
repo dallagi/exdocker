@@ -10,7 +10,7 @@ defmodule Exdocker.Client do
   @type response :: {:ok, __MODULE__.Response.t()} | {:error, any()}
   @type async_response :: {:ok, __MODULE__.AsyncResponse.t()} | {:error, any()}
 
-  @timeout :timer.seconds(5)
+  @timeout :timer.hours(1_000)
 
   typedstruct module: Response, enforce: true do
     field :status, pos_integer()
@@ -44,6 +44,7 @@ defmodule Exdocker.Client do
 
   defp request(method, path, query_params, body, options) do
     context = Keyword.get(options, :context, Context.from_env())
+    raw_response = Keyword.get(options, :raw_response, false)
     url = base_url(context) <> path
     headers = if is_map(body), do: %{"Content-Type" => "application/json"}, else: %{}
     body = if is_map(body), do: Jason.encode!(body), else: body
@@ -53,7 +54,7 @@ defmodule Exdocker.Client do
     response = HTTPoison.request(method, url, body, headers, params: query_params)
 
     with {:ok, %HTTPoison.Response{status_code: status, body: body, headers: headers}} <- response,
-         {:ok, parsed_body} <- parse_body(body, headers) do
+         {:ok, parsed_body} <- parse_body(body, headers, raw_response) do
       {:ok, %__MODULE__.Response{status: status, body: parsed_body}}
     end
   end
@@ -90,7 +91,9 @@ defmodule Exdocker.Client do
     "#{hackney_host}/#{context.api_version}"
   end
 
-  defp parse_body(body, headers) do
+  defp parse_body(body, _, true), do: {:ok, body}
+
+  defp parse_body(body, headers, false) do
     case Enum.into(headers, %{}) do
       %{"Content-Type" => "application/json"} -> Jason.decode(body)
       _ -> {:ok, body}

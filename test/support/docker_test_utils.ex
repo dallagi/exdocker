@@ -24,6 +24,10 @@ defmodule Exdocker.Support.DockerTestUtils do
   def pull_image!(name), do: run_command!(["pull", name])
   def remove_container!(id_or_name), do: run_command!(["rm", "-f", id_or_name])
 
+  def remove_image(id_or_name), do: System.cmd("docker", ["rmi", id_or_name], stderr_to_stdout: true)
+
+  def image_exists?(id_or_name), do: run_command!(["images", "-q", id_or_name]) != ""
+
   def container_status(id_or_name), do: get_in(inspect!(id_or_name), [Access.at(0), "State", "Status"])
 
   defp run_command!(command) do

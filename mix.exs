@@ -1,14 +1,30 @@
 defmodule Exdocker.MixProject do
   use Mix.Project
 
+  @version "0.1.0"
+  @source_url "https://github.com/dallagi/exdocker"
+
   def project do
     [
       app: :exdocker,
-      version: "0.1.0",
-      elixir: "~> 1.12",
+      version: @version,
+      elixir: "~> 1.11",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ],
+      docs: [
+        main: "readme",
+        extras: ["README.md", "LICENSE"],
+        source_ref: "v#{@version}",
+        source_url: @source_url
+      ]
     ]
   end
 
@@ -31,7 +47,8 @@ defmodule Exdocker.MixProject do
   defp dev_deps do
     [
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false}
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:excoveralls, "~> 0.13", only: :test}
     ]
   end
 

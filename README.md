@@ -1,5 +1,9 @@
 # Exdocker
 
+![CircleCI](https://img.shields.io/circleci/build/github/dallagi/exdocker)
+![Coveralls](https://img.shields.io/coveralls/github/dallagi/exdocker)
+![Hex.pm](https://img.shields.io/hexpm/v/exdocker)
+
 Elixir client for the Docker Engine API.
 
 Currently focused mostly on what is needed for [Excontainers](https://github.com/dallagi/excontainers), contributions to add other functionalities are very welcome :)
@@ -16,8 +20,6 @@ Support for other functionalities is also a goal and any contribution for that i
 Support for Swarm APIs is not a goal.
 
 ## Installation
-
-**The package has not been published on Hex yet**
 
 The package can be installed
 by adding `exdocker` to your list of dependencies in `mix.exs`:
@@ -43,7 +45,7 @@ By default, requests are run on the default docker host of the system, as specif
 To run requests on a different docker host, a `context` can be passed to any function wrapping a Docker API:
 
 ```elixir
-context = %Exdocker.Context{host: "tcp://192.168.59.103:1234", api_version: "v1.41"} 
+context = %Exdocker.Context{host: "tcp://192.168.59.103:1234", api_version: "v1.41"}
 :ok = Exdocker.Images.pull("alpine", "latest", context: context)
 ```
 

@@ -25,8 +25,8 @@ defmodule ExecTest do
     {:ok, exec_id} = Exec.create(container_id, ["sh", "-c", "echo first! && sleep 0.01 && echo second!"])
     {:ok, ref} = Exec.start_and_stream_logs(exec_id)
 
-    assert_receive({:log_chunk, ^ref, :stdout, "first!\n"})
-    assert_receive({:log_chunk, ^ref, :stdout, "second!\n"})
-    assert_receive({:log_end, ^ref})
+    assert_receive({:log_chunk, ^ref, :stdout, "first!\n"}, :timer.minutes(1))
+    assert_receive({:log_chunk, ^ref, :stdout, "second!\n"}, :timer.minutes(1))
+    assert_receive({:log_end, ^ref}, :timer.minutes(1))
   end
 end

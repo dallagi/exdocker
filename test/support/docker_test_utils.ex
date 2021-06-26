@@ -1,6 +1,7 @@
 defmodule Exdocker.Support.DockerTestUtils do
   @moduledoc false
   import ExUnit.Callbacks
+  require Logger
 
   def create_container!(image, cmd \\ []) do
     container_id =
@@ -32,8 +33,12 @@ defmodule Exdocker.Support.DockerTestUtils do
 
   defp run_command!(command) do
     case System.cmd("docker", command) do
-      {stdout, _exit_code = 0} -> stdout
-      {_stdout, exit_code} -> raise "Command failed with exit code #{exit_code}"
+      {stdout, _exit_code = 0} ->
+        stdout
+
+      {stdout, exit_code} ->
+        Logger.warn(stdout)
+        raise "Command failed with exit code #{exit_code}"
     end
   end
 end

@@ -8,6 +8,8 @@ Elixir client for the Docker Engine API.
 
 Currently focused mostly on what is needed for [Excontainers](https://github.com/dallagi/excontainers), contributions to add other functionalities are very welcome :)
 
+Just like Excontainers, Exdocker is still mostly a work-in-progress, and it shuold not be considered stable yet.
+
 ## Purpose
 
 This project aims to provide a easy way to interface with the Docker Engine API, taking care of matters such as running requests, registry authentication (WIP), and parsing and streaming logs.

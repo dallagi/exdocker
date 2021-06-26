@@ -7,6 +7,7 @@ defmodule Exdocker.MixProject do
   def project do
     [
       app: :exdocker,
+      description: "Yet another Elixir wrapper for the Docker Engine API",
       version: @version,
       elixir: "~> 1.11",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -18,6 +19,10 @@ defmodule Exdocker.MixProject do
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test
+      ],
+      package: [
+        links: %{"GitHub" => @source_url},
+        licenses: ["MIT"]
       ],
       docs: [
         main: "readme",
@@ -48,6 +53,7 @@ defmodule Exdocker.MixProject do
     [
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:excoveralls, "~> 0.13", only: :test}
     ]
   end

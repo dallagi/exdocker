@@ -12,6 +12,8 @@ defmodule Exdocker.Client do
   @timeout :timer.hours(1_000)
 
   defmodule Response do
+    @moduledoc false
+
     @enforce_keys [:status, :body]
     defstruct [:status, :body]
 
@@ -20,6 +22,8 @@ defmodule Exdocker.Client do
   end
 
   defmodule AsyncResponse do
+    @moduledoc false
+
     @enforce_keys [:status, :stream_ref]
     defstruct [:status, :stream_ref]
 

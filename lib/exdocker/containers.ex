@@ -7,7 +7,7 @@ defmodule Exdocker.Containers do
 
   @spec create(String.t(), Keyword.t()) :: {:ok, String.t() | {:error, any()}}
   def create(image, options \\ []) do
-    client_options = ExtraKeyword.take_values(options, [:context])
+    client_options = Keyword.take(options, [:context])
     [name, command, host_config] = ExtraKeyword.take_values(options, [:name, :command, :host_config])
     extra_params = Keyword.get(options, :extra_params, %{})
 
@@ -22,7 +22,7 @@ defmodule Exdocker.Containers do
 
   @spec start(String.t(), Keyword.t()) :: :ok | {:error, any()}
   def start(container_id, options \\ []) do
-    client_options = ExtraKeyword.take_values(options, [:context, :timeout])
+    client_options = Keyword.take(options, [:context, :timeout])
 
     case Client.post("/containers/#{container_id}/start", "", %{}, client_options) do
       {:ok, %{status: 204}} -> :ok
@@ -34,7 +34,7 @@ defmodule Exdocker.Containers do
   @spec wait(String.t(), Keyword.t()) :: {:ok, non_neg_integer()} | {:error, any()}
   def wait(container_id, options \\ []) do
     condition = Keyword.get(options, :condition, "not-running")
-    client_options = ExtraKeyword.take_values(options, [:context, :timeout])
+    client_options = Keyword.take(options, [:context, :timeout])
 
     case Client.post("/containers/#{container_id}/wait", "", %{condition: condition}, client_options) do
       {:ok, %{status: 200, body: %{"StatusCode" => exit_code}}} -> {:ok, exit_code}
@@ -48,7 +48,7 @@ defmodule Exdocker.Containers do
     stream_to = Keyword.get(options, :stream_to, self())
     stdout = Keyword.get(options, :stdout, true)
     stderr = Keyword.get(options, :stderr, false)
-    client_options = ExtraKeyword.take_values(options, [:context, :timeout])
+    client_options = Keyword.take(options, [:context, :timeout])
 
     query_params = %{follow: true, stdout: stdout, stderr: stderr}
 
@@ -70,7 +70,7 @@ defmodule Exdocker.Containers do
 
   @spec logs(String.t(), Keyword.t()) :: {:ok, [Logs.log_chunk()]} | {:error, any()}
   def logs(container_id, options \\ []) do
-    client_options = ExtraKeyword.take_values(options, [:context, :timeout])
+    client_options = Keyword.take(options, [:context, :timeout])
     stdout = Keyword.get(options, :stdout, true)
     stderr = Keyword.get(options, :stderr, false)
 

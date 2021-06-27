@@ -11,7 +11,7 @@ defmodule Exdocker do
     [user, password, email, server_address] =
       ExtraKeyword.take_values(options, [:user, :password, :email, :server_address])
 
-    client_options = ExtraKeyword.take_values(options, [:context, :timeout])
+    client_options = Keyword.take(options, [:context, :timeout])
     body = ExtraEnum.remove_nils(%{username: user, password: password, email: email, serveraddress: server_address})
 
     case Client.post("/auth", body, %{}, client_options) do
@@ -23,7 +23,7 @@ defmodule Exdocker do
 
   def stream_events(options \\ []) do
     stream_to = Keyword.get(options, :stream_to, self())
-    client_options = ExtraKeyword.take_values(options, [:context, :timeout])
+    client_options = Keyword.take(options, [:context, :timeout])
 
     [since, until, filters] = ExtraKeyword.take_values(options, [:since, :until, :filters])
     encoded_since = if since != nil, do: DateTime.to_unix(since)

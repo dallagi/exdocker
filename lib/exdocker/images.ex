@@ -2,11 +2,10 @@ defmodule Exdocker.Images do
   @moduledoc false
 
   alias Exdocker.Client
-  alias Exdocker.Utils.ExtraKeyword
 
   def pull(image, tag \\ "latest", options \\ []) do
     client_options =
-      ExtraKeyword.take_values(options, [:context, :timeout])
+      Keyword.take(options, [:context, :timeout])
       |> Keyword.put(:raw_response, true)
 
     tag = if tag == :all, do: nil, else: tag

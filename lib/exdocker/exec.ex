@@ -3,13 +3,13 @@ defmodule Exdocker.Exec do
 
   alias Exdocker.Client
   alias Exdocker.Utils.Logs
-  alias Exdocker.Utils.{ExtraEnum, ExtraKeyword}
+  alias Exdocker.Utils.ExtraEnum
 
   @type result(result_type) :: {:ok, result_type} | {:error, any()}
 
   @spec create(String.t(), [String.t()], Keyword.t()) :: result(String.t())
   def create(container_id, command, options \\ []) do
-    client_options = ExtraKeyword.take_values(options, [:context, :timeout])
+    client_options = Keyword.take(options, [:context, :timeout])
 
     environment =
       options
@@ -38,7 +38,7 @@ defmodule Exdocker.Exec do
 
   @spec start(String.t(), Keyword.t()) :: result([{Logs.std_stream(), String.t()}])
   def start(exec_id, options \\ []) do
-    client_options = ExtraKeyword.take_values(options, [:context, :timeout])
+    client_options = Keyword.take(options, [:context, :timeout])
     body = %{Detach: Keyword.get(options, :detach, false)}
 
     case Client.post("/exec/#{exec_id}/start", body, %{}, client_options) do
@@ -51,7 +51,7 @@ defmodule Exdocker.Exec do
   @spec start_and_stream_logs(String.t(), Keyword.t()) :: result(reference())
   def start_and_stream_logs(exec_id, options \\ []) do
     stream_to = Keyword.get(options, :stream_to, self())
-    client_options = ExtraKeyword.take_values(options, [:context, :timeout])
+    client_options = Keyword.take(options, [:context, :timeout])
     body = %{Detach: false}
 
     logs_listener = spawn_link(fn -> Logs.parse_and_forward(stream_to) end)

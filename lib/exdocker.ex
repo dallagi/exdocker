@@ -47,6 +47,16 @@ defmodule Exdocker do
     end
   end
 
+  def ping(options \\ []) do
+    client_options = Keyword.take(options, [:context, :timeout])
+
+    case Client.get("/_ping", %{}, client_options) do
+      {:ok, %{status: 200}} -> :ok
+      {:ok, %{status: status}} -> {:error, "Request failed with status #{status}"}
+      {:error, error} -> {:error, error}
+    end
+  end
+
   defp parse_and_forward_events(forward_to) do
     receive do
       {:chunk, ref, chunk} ->

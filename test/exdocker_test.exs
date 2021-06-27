@@ -5,6 +5,17 @@ defmodule ExdockerTest do
 
   @test_image "dallagi/empty:1.0"
 
+  describe "ping" do
+    test "returns :ok when docker is available" do
+      assert :ok == Exdocker.ping()
+    end
+
+    test "returns {:error, _} when docker is not available" do
+      invalid_context = %Exdocker.Context{host: "tcp://invalid-host", api_version: "1.41"}
+      assert {:error, _} = Exdocker.ping(context: invalid_context)
+    end
+  end
+
   describe "stream_events" do
     test "stream_events streams docker events" do
       {:ok, stream_ref} = Exdocker.stream_events()

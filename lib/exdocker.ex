@@ -1,7 +1,6 @@
 defmodule Exdocker do
   @moduledoc false
 
-  use TypedStruct
   require Logger
 
   alias Exdocker.Client

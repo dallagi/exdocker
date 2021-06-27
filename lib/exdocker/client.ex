@@ -1,7 +1,6 @@
 defmodule Exdocker.Client do
   @moduledoc false
 
-  use TypedStruct
   require Logger
   alias Exdocker.Context
 
@@ -12,14 +11,20 @@ defmodule Exdocker.Client do
 
   @timeout :timer.hours(1_000)
 
-  typedstruct module: Response, enforce: true do
-    field :status, pos_integer()
-    field :body, term()
+  defmodule Response do
+    @enforce_keys [:status, :body]
+    defstruct [:status, :body]
+
+    @typedoc "HTTP Response"
+    @type t() :: %__MODULE__{status: pos_integer(), body: term()}
   end
 
-  typedstruct module: AsyncResponse, enforce: true do
-    field :status, pos_integer()
-    field :stream_ref, reference()
+  defmodule AsyncResponse do
+    @enforce_keys [:status, :stream_ref]
+    defstruct [:status, :stream_ref]
+
+    @typedoc "Async HTTP Response"
+    @type t() :: %__MODULE__{status: pos_integer(), stream_ref: reference()}
   end
 
   @spec get(String.t(), map(), Keyword.t()) :: response()

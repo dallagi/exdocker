@@ -1,16 +1,14 @@
 defmodule Exdocker.Context do
   @moduledoc false
-  use TypedStruct
 
   @default_docker_host "unix:///var/run/docker.sock"
   @api_version "v1.41"
 
-  typedstruct enforce: true do
-    @typedoc "Configuration necessary to communicate with the target docker daemon"
+  @enforce_keys [:host, :api_version]
+  defstruct [:host, :api_version]
 
-    field :host, String.t()
-    field :api_version, String.t()
-  end
+  @typedoc "Configuration necessary to communicate with the target docker daemon"
+  @type t() :: %__MODULE__{host: String.t(), api_version: String.t()}
 
   @doc """
   Build the context from environment variables

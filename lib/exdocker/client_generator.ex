@@ -11,28 +11,31 @@ defmodule Exdocker.ClientGenerator do
     end
   end
 
-  defmacro defendpoint(name, operation_id) do
+  defmacro defendpoint(name, operation_id, params) do
     api_spec = Module.get_attribute(__CALLER__.module, :api_spec)
     base_path = api_spec["basePath"]
-
-    operation_spec =
-      api_spec
-      |> all_operations()
-      |> Enum.find(fn op -> op.id == operation_id end)
-
+    operation_spec = operation_spec_for(api_spec, operation_id)
     method = method_for(operation_spec)
+    parse_response = Keyword.get(params, :parse_response, &Function.identity/1)
 
     quote do
       def unquote(name)() do
-        Finch.build(
-          unquote(method),
-          "http://localhost" <> unquote(base_path) <> unquote(operation_spec.path),
-          %{},
-          nil,
-          unix_socket: "/var/run/docker.sock"
-        )
-        |> IO.inspect()
-        |> Finch.request(ExDocker.Finch)
+        request =
+          Finch.build(
+            unquote(method),
+            "http://localhost" <> unquote(base_path) <> unquote(operation_spec.path),
+            %{},
+            nil,
+            unix_socket: "/var/run/docker.sock"
+          )
+
+        case Finch.request(request, ExDocker.Finch) do
+          {:ok, response = %Finch.Response{status: 200, body: body}} ->
+            unquote(parse_response).(body)
+
+          _ ->
+            raise "Not implemented yet"
+        end
       end
     end
   end
@@ -52,5 +55,11 @@ defmodule Exdocker.ClientGenerator do
       "get" -> :get
       "post" -> :post
     end
+  end
+
+  defp operation_spec_for(api_spec, operation_id) do
+    api_spec
+    |> all_operations()
+    |> Enum.find(fn op -> op.id == operation_id end)
   end
 end

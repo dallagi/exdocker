@@ -14,6 +14,9 @@ defmodule Exdocker.ClientGenerator.Definition do
 
       "string" ->
         Definition.String.parse(openapi_spec)
+
+      "boolean" ->
+        Definition.Boolean.parse(openapi_spec)
     end
   end
 end

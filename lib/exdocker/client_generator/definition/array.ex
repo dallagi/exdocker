@@ -4,7 +4,7 @@ defmodule Exdocker.ClientGenerator.Definition.Array do
   @type t :: %__MODULE__{items: Definition.t(), description: String.t(), nullable: boolean()}
   defstruct ~w(items description nullable)a
 
-  def parse(%{items: items} = openapi_spec) do
+  def parse(%{"items" => items} = openapi_spec) do
     %__MODULE__{
       items: items,
       description: openapi_spec["description"],

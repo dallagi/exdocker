@@ -18,9 +18,19 @@ defmodule Exdocker.ClientGenerator.Definition.Object do
     }
   end
 
+  def to_struct(self, name) do
+    property_names = Map.keys(self.properties)
+
+    quote do
+      defmodule unquote(name) do
+        defstruct unquote(property_names)
+      end
+    end
+  end
+
   defp parse_properties(properties_spec) do
     for {property_name, property_spec} <- properties_spec,
         into: %{},
-        do: {property_name, Definition.parse(property_spec)}
+        do: {String.to_atom(property_name), Definition.parse(property_spec)}
   end
 end

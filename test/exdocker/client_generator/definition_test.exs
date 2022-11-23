@@ -25,7 +25,7 @@ defmodule Exdocker.ClientGenerator.DefinitionTest do
     }
 
     assert %Definition.Object{
-             properties: %{"Property1" => %Definition.String{}},
+             properties: %{Property1: %Definition.String{nullable: true}},
              description: "description for test object",
              required: [],
              nullable: true
@@ -41,7 +41,7 @@ defmodule Exdocker.ClientGenerator.DefinitionTest do
 
     assert %Definition.Object{
              properties: %{
-               "Property1" => %Definition.Object{
+               Property1: %Definition.Object{
                  properties: %{},
                  description: nil,
                  required: [],
@@ -52,5 +52,53 @@ defmodule Exdocker.ClientGenerator.DefinitionTest do
              required: [],
              nullable: true
            } == Definition.Object.parse(spec)
+  end
+
+  # test "xxx" do
+  #   api_spec = YamlElixir.read_from_file!("priv/docker-api-v1.41.yaml")
+  #   dbg(Definition.parse(api_spec["definitions"]["SystemVersion"]))
+  # end
+
+  test "generate simple struct" do
+    definition = %Definition.Object{
+      properties: %{:Property1 => %Definition.String{}},
+      description: "description for test object",
+      required: [],
+      nullable: true
+    }
+
+    generated = Macro.to_string(Definition.Object.to_struct(definition, :TestObject))
+
+    expected =
+      """
+      defmodule :TestObject do
+        defstruct [:Property1]
+      end
+      """
+      |> String.trim()
+
+    assert expected == generated
+  end
+
+  test "generate nested structs" do
+    definition = %Definition.Object{
+      properties: %{
+        Property1: %Definition.Object{
+          properties: %{},
+          description: nil,
+          required: [],
+          nullable: true
+        }
+      },
+      description: "description for test object",
+      required: [],
+      nullable: true
+    }
+
+    generated = Macro.to_string(Definition.Object.to_struct(definition, :TestObject))
+
+    # TODO
+    assert """
+           """ == generated
   end
 end

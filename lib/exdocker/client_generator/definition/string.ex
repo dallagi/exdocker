@@ -6,7 +6,7 @@ defmodule Exdocker.ClientGenerator.Definition.String do
     %__MODULE__{
       description: openapi_spec["description"],
       example: openapi_spec["example"],
-      nullable: openapi_spec["x-nullable"]
+      nullable: Map.get(openapi_spec, "x-nullable", true)
     }
   end
 end
